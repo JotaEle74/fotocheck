@@ -159,7 +159,7 @@
   width: 100px;
   height: 100px;
   background: #ffffff;
-  border-radius: 0px;
+  border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
   display: flex;
   align-items: center;
@@ -195,7 +195,7 @@
 }
 
 .pcv-photo-frame {
-  width: 170px;
+  width: 160px;
   height: 200px;
   border-radius: 6px;
   overflow: hidden;
@@ -295,7 +295,7 @@
   justify-content: center;
   gap: 10px;
 
-  padding: 4px 20px;
+  padding: 8px 20px;
   background: linear-gradient(180deg, #2f7bc4 0%, #1a5aa0 55%, #14488a 100%);
 }
 
@@ -310,8 +310,8 @@
 }
 
 .pcv-dni-number {
-  font-size: 20px;
-  font-weight: 400;
+  font-size: 18px;
+  font-weight: 500;
   color: #ffffff;
   letter-spacing: 0.5px;
 }
@@ -328,7 +328,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 16px;
+  width: 25px;
   height: 100%;
   background: linear-gradient(180deg, #14488a 100%, #1a5aa0 55%, #1a5aa0 25%, #2f7bc4 0%);
   z-index: 0;
@@ -338,7 +338,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 14px 24px 10px 20px;
+  padding: 14px 44px 10px 20px;
   overflow: hidden;
   position: relative;
   z-index: 1;
