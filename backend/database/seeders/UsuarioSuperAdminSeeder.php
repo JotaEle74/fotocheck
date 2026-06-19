@@ -20,7 +20,7 @@ class UsuarioSuperAdminSeeder extends Seeder
             ['usuario' => 'rrhh.una',       'clave' => 'Rrhh@Una!2026$Pro',    'rol_id' => 2],
             ['usuario' => 'ti.una',         'clave' => 'T1@Sist3ma!2026&',     'rol_id' => 3],
             ['usuario' => 'consultor.una',  'clave' => 'C0nsult0r!Una#26',     'rol_id' => 4],
-            ['usuario' => 'editor.una',     'clave' => 'Ed1t0r!Una@2026$',     'rol_id' => 5],
+            //['usuario' => 'editor.una',     'clave' => 'Ed1t0r!Una@2026$',     'rol_id' => 5],
         ];
 
         foreach ($users as $u) {

@@ -43,23 +43,33 @@ class PublicFotocheckController extends Controller
         return response()->json([
             'trabajador' => [
                 'dni' => $trabajador->dni,
+                'codigo_universitario' => $trabajador->codigo_universitario,
                 'nombres' => $trabajador->nombres,
                 'apellidos' => $trabajador->apellidos,
                 'nombre_completo' => $trabajador->nombres.' '.$trabajador->apellidos,
                 'cargo' => $trabajador->cargo,
                 'area' => $trabajador->area,
+                'dependencia' => $trabajador->dependencia,
                 'empresa' => $trabajador->empresa,
                 'telefono' => $trabajador->telefono,
                 'correo' => $trabajador->correo,
                 'foto' => $trabajador->url_foto_presencial ?: $trabajador->url_foto_virtual,
+                'url_qr' => $trabajador->url_qr,
                 'codigo' => $trabajador->codigo_unico,
                 'codigo_nfs' => $trabajador->codigo_nfs,
                 'fecha_ingreso' => $trabajador->fecha_ingreso,
+                'regimen' => $trabajador->regimen,
+                'facultad' => $trabajador->facultad,
+                'escuela_profesional' => $trabajador->escuela_profesional,
+                'resolucion_rectoral' => $trabajador->resolucion_rectoral,
+                'vigencia' => $trabajador->vigencia,
+                'fecha_emision' => $trabajador->fecha_emision,
             ],
             'fotocheck' => [
                 'codigo' => $fotocheck->codigo,
                 'estado' => $fotocheck->estado,
                 'fecha_emision' => $fotocheck->fecha_emision,
+                'url_qr' => $fotocheck->url_qr,
             ],
         ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache');

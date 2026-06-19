@@ -93,73 +93,120 @@ class TrabajadorController extends Controller
         $file = $request->file('archivo');
         $spreadsheet = IOFactory::load($file->getRealPath());
         $sheet = $spreadsheet->getActiveSheet();
-        $rows = $sheet->toArray();
+        $highestCol = $sheet->getHighestColumn();
+        $highestRow = $sheet->getHighestRow();
 
-        if (count($rows) < 2) {
+        if ($highestRow < 2) {
             return response()->json(['message' => 'El archivo no tiene datos'], 422);
         }
 
-        $header = array_map('strtoupper', array_map('trim', $rows[0]));
+        $header = [];
+        for ($col = 'A'; $col <= $highestCol; $col++) {
+            $header[] = strtoupper(trim((string) $sheet->getCell($col.'1')->getValue()));
+        }
+
         $creados = 0;
         $actualizados = 0;
-        $errores = [];
+        $saltados = 0;
 
-        for ($i = 1; $i < count($rows); $i++) {
-            $row = $rows[$i];
-            $data = array_combine($header, $row);
+        for ($i = 2; $i <= $highestRow; $i++) {
+            $data = [];
+            $colIndex = 0;
+            for ($col = 'A'; $col <= $highestCol; $col++) {
+                $cell = $sheet->getCell($col.$i);
+                $data[$header[$colIndex]] = trim((string) $cell->getValue());
+                $colIndex++;
+            }
 
-            $dni = trim($data['DNI'] ?? '');
-            $nombres = trim($data['NOMBRES'] ?? '');
-            $apellidos = trim($data['APELLIDOS'] ?? '');
-            $telefono = trim($data['TELEFONO'] ?? '');
-            $correo = trim($data['CORREO'] ?? '');
-            $cargo = trim($data['CONDICION'] ?? '');
-            $codigoUnico = trim($data['CODIGO_UNICO'] ?? '');
-            $codigoNfs = trim($data['CODIGO_NFS'] ?? '');
-            $urlFotoPresencial = trim($data['URL_FOTO_PRESENCIAL'] ?? '');
-            $urlFotoVirtual = trim($data['URL_FOTO_VIRTUAL'] ?? '');
-            $urlQrImage = trim($data['URL_QR_IMAGE'] ?? '');
-            $urlQr = trim($data['URL_QR'] ?? '');
+            $dni = trim((string) ($data['DNI'] ?? ''));
+            $nombres = trim((string) ($data['NOMBRES'] ?? ''));
+            $apellidos = trim((string) ($data['APELLIDOS'] ?? ''));
+            $codigoUnico = trim((string) ($data['CODIGO_UNICO'] ?? ''));
 
-            if (! $dni || ! $nombres || ! $apellidos) {
-                $errores[] = "Fila {$i}: DNI, NOMBRES y APELLIDOS son obligatorios";
-
+            if ($dni === '' || $nombres === '' || $apellidos === '' || $codigoUnico === '') {
+                $saltados++;
                 continue;
             }
+
+            $codigoUniversitario = trim((string) ($data['CODIGO_UNIVERSITARIO'] ?? ''));
+            $empresa = trim((string) ($data['EMPRESA'] ?? ''));
+            $area = trim((string) ($data['AREA'] ?? ''));
+            $dependencia = trim((string) ($data['DEPENDENCIA'] ?? ''));
+            $telefono = trim((string) ($data['TELEFONO'] ?? ''));
+            $correo = trim((string) ($data['CORREO'] ?? ''));
+            $fechaIngreso = trim((string) ($data['FECHA_INGRESO'] ?? ''));
+            $regimen = trim((string) ($data['REGIMEN'] ?? ''));
+            $facultad = trim((string) ($data['FACULTAD'] ?? ''));
+            $escuelaProfesional = trim((string) ($data['ESCUELA_PROFESIONAL'] ?? ''));
+            $resolucionRectoral = trim((string) ($data['RESOLUCION_RECTORAL'] ?? ''));
+            $vigencia = trim((string) ($data['VIGENCIA'] ?? ''));
+            $fechaEmision = trim((string) ($data['FECHA_EMISION'] ?? ''));
+            $cargo = trim((string) ($data['CONDICION'] ?? ''));
+            $codigoNfs = trim((string) ($data['CODIGO_NFS'] ?? ''));
+            $urlFotoPresencial = trim((string) ($data['URL_FOTO_PRESENCIAL'] ?? ''));
+            $urlFotoVirtual = trim((string) ($data['URL_FOTO_VIRTUAL'] ?? ''));
+            $urlQrImage = trim((string) ($data['URL_QR_IMAGE'] ?? ''));
+            $urlQr = trim((string) ($data['URL_QR'] ?? ''));
 
             $existe = Trabajador::where('dni', $dni)->first();
 
             if ($existe) {
-                $existe->update([
+                $campos = [
                     'nombres' => $nombres,
                     'apellidos' => $apellidos,
-                    'telefono' => $telefono ?: $existe->telefono,
-                    'correo' => $correo ?: $existe->correo,
-                    'cargo' => $cargo ?: $existe->cargo,
-                    'codigo_unico' => $codigoUnico ?: $existe->codigo_unico,
-                    'codigo_nfs' => $codigoNfs ?: $existe->codigo_nfs,
-                    'url_foto_presencial' => $urlFotoPresencial ?: $existe->url_foto_presencial,
-                    'url_foto_virtual' => $urlFotoVirtual ?: $existe->url_foto_virtual,
-                    'url_qr_image' => $urlQrImage ?: $existe->url_qr_image,
-                    'url_qr' => $urlQr ?: $existe->url_qr,
-                ]);
+                ];
+                if ($codigoUniversitario !== '') $campos['codigo_universitario'] = $codigoUniversitario;
+                if ($empresa !== '') $campos['empresa'] = $empresa;
+                if ($area !== '') $campos['area'] = $area;
+                if ($dependencia !== '') $campos['dependencia'] = $dependencia;
+                if ($telefono !== '') $campos['telefono'] = $telefono;
+                if ($correo !== '') $campos['correo'] = $correo;
+                if ($fechaIngreso !== '') $campos['fecha_ingreso'] = $fechaIngreso;
+                if ($regimen !== '') $campos['regimen'] = $regimen;
+                if ($facultad !== '') $campos['facultad'] = $facultad;
+                if ($escuelaProfesional !== '') $campos['escuela_profesional'] = $escuelaProfesional;
+                if ($resolucionRectoral !== '') $campos['resolucion_rectoral'] = $resolucionRectoral;
+                if ($vigencia !== '') $campos['vigencia'] = $vigencia;
+                if ($fechaEmision !== '') $campos['fecha_emision'] = $fechaEmision;
+                if ($cargo !== '') $campos['cargo'] = $cargo;
+                if ($codigoUnico !== '') $campos['codigo_unico'] = $codigoUnico;
+                if ($codigoNfs !== '') $campos['codigo_nfs'] = $codigoNfs;
+                if ($urlFotoPresencial !== '') $campos['url_foto_presencial'] = $urlFotoPresencial;
+                if ($urlFotoVirtual !== '') $campos['url_foto_virtual'] = $urlFotoVirtual;
+                if ($urlQrImage !== '') $campos['url_qr_image'] = $urlQrImage;
+                if ($urlQr !== '') $campos['url_qr'] = $urlQr;
+
+                $existe->update($campos);
                 $actualizados++;
             } else {
-                $nuevo = Trabajador::create([
+                $camposCreate = [
                     'dni' => $dni,
                     'nombres' => $nombres,
                     'apellidos' => $apellidos,
-                    'telefono' => $telefono ?: null,
-                    'correo' => $correo ?: null,
-                    'cargo' => $cargo ?: null,
-                    'codigo_unico' => $codigoUnico ?: null,
-                    'codigo_nfs' => $codigoNfs ?: null,
-                    'url_foto_presencial' => $urlFotoPresencial ?: null,
-                    'url_foto_virtual' => $urlFotoVirtual ?: null,
-                    'url_qr_image' => $urlQrImage ?: null,
-                    'url_qr' => $urlQr ?: null,
                     'estado' => 'ACTIVO',
-                ]);
+                ];
+                if ($codigoUniversitario !== '') $camposCreate['codigo_universitario'] = $codigoUniversitario;
+                if ($empresa !== '') $camposCreate['empresa'] = $empresa;
+                if ($area !== '') $camposCreate['area'] = $area;
+                if ($dependencia !== '') $camposCreate['dependencia'] = $dependencia;
+                if ($telefono !== '') $camposCreate['telefono'] = $telefono;
+                if ($correo !== '') $camposCreate['correo'] = $correo;
+                if ($fechaIngreso !== '') $camposCreate['fecha_ingreso'] = $fechaIngreso;
+                if ($regimen !== '') $camposCreate['regimen'] = $regimen;
+                if ($facultad !== '') $camposCreate['facultad'] = $facultad;
+                if ($escuelaProfesional !== '') $camposCreate['escuela_profesional'] = $escuelaProfesional;
+                if ($resolucionRectoral !== '') $camposCreate['resolucion_rectoral'] = $resolucionRectoral;
+                if ($vigencia !== '') $camposCreate['vigencia'] = $vigencia;
+                if ($fechaEmision !== '') $camposCreate['fecha_emision'] = $fechaEmision;
+                if ($cargo !== '') $camposCreate['cargo'] = $cargo;
+                if ($codigoUnico !== '') $camposCreate['codigo_unico'] = $codigoUnico;
+                if ($codigoNfs !== '') $camposCreate['codigo_nfs'] = $codigoNfs;
+                if ($urlFotoPresencial !== '') $camposCreate['url_foto_presencial'] = $urlFotoPresencial;
+                if ($urlFotoVirtual !== '') $camposCreate['url_foto_virtual'] = $urlFotoVirtual;
+                if ($urlQrImage !== '') $camposCreate['url_qr_image'] = $urlQrImage;
+                if ($urlQr !== '') $camposCreate['url_qr'] = $urlQr;
+
+                $nuevo = Trabajador::create($camposCreate);
 
                 if ($nuevo->codigo_unico) {
                     $codigo = 'FC-'.strtoupper(Str::random(8));
@@ -177,13 +224,13 @@ class TrabajadorController extends Controller
             }
         }
 
-        $this->log($request, 'Importacion', 'trabajadores', null, "Importados: {$creados}, Actualizados: {$actualizados}, Errores: ".count($errores));
+        $this->log($request, 'Importacion', 'trabajadores', null, "Importados: {$creados}, Actualizados: {$actualizados}, Saltados: {$saltados}");
 
         return response()->json([
             'message' => 'Importacion completada',
             'creados' => $creados,
             'actualizados' => $actualizados,
-            'errores' => $errores,
+            'saltados' => $saltados,
         ]);
     }
 
@@ -193,12 +240,14 @@ class TrabajadorController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
 
         $headers = [
-            'DNI', 'NOMBRES', 'APELLIDOS', 'TELEFONO', 'CORREO',
+            'DNI', 'CODIGO_UNIVERSITARIO', 'NOMBRES', 'APELLIDOS', 'EMPRESA', 'AREA', 'DEPENDENCIA', 'CARGO',
+            'TELEFONO', 'CORREO', 'FECHA_INGRESO', 'REGIMEN', 'FACULTAD', 'ESCUELA_PROFESIONAL',
+            'RESOLUCION_RECTORAL', 'VIGENCIA', 'FECHA_EMISION',
             'CONDICION', 'CODIGO_UNICO', 'CODIGO_NFS',
             'URL_FOTO_PRESENCIAL', 'URL_FOTO_VIRTUAL', 'URL_QR_IMAGE', 'URL_QR',
         ];
 
-        $colLetters = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+        $colLetters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X'];
 
         foreach ($headers as $i => $header) {
             $cell = $sheet->getCell($colLetters[$i] . '1');
@@ -207,7 +256,9 @@ class TrabajadorController extends Controller
         }
 
         $sample = [
-            '70123456', 'JUAN', 'PEREZ GARCIA', '951234567', 'juan.perez@unap.edu.pe',
+            '70123456', 'UNI001', 'JUAN', 'PEREZ GARCIA', 'UNA', 'FACULTAD DE INGENIERIA', 'DEP. SISTEMAS', 'DOCENTE',
+            '951234567', 'juan.perez@unap.edu.pe', '2020-01-15', 'NOMBRADO', 'FACULTAD DE INGENIERIA', 'INGENIERIA DE SISTEMAS',
+            'RR-001-2020', '2025-12-31', '2020-01-15',
             'NOMBRADO', 'ABC12345', 'NFS001',
             'https://drive.google.com/file/d/ABC123/view', 'https://drive.google.com/file/d/XYZ789/view',
             'https://dominio.com/ABC12345', 'https://dominio.com/qr/ABC12345',
@@ -217,7 +268,7 @@ class TrabajadorController extends Controller
             $sheet->getCell($colLetters[$i] . '2')->setValue($value);
         }
 
-        foreach (range('A', 'L') as $col) {
+        foreach (range('A', 'X') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 

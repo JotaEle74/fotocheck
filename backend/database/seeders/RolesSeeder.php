@@ -34,12 +34,6 @@ class RolesSeeder extends Seeder
                 'nivel' => 10,
                 'estado' => 'ACTIVO',
             ],
-            [
-                'nombre' => 'EDITOR',
-                'descripcion' => 'Edicion de informacion sin permisos administrativos',
-                'nivel' => 30,
-                'estado' => 'ACTIVO',
-            ],
         ]);
     }
 }
